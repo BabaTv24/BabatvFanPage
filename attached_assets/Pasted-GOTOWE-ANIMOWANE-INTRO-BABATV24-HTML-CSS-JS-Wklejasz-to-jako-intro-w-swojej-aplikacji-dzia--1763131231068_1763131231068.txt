@@ -1,0 +1,81 @@
+GOTOWE ANIMOWANE INTRO BABATV24 (HTML + CSS + JS)
+
+Wklejasz to jako intro w swojej aplikacji – działa od razu.
+
+HTML
+<div class="intro-container">
+  <span class="letter" style="--i:1; --color:#ff0000;">B</span>
+  <span class="letter" style="--i:2; --color:#ff7f00;">A</span>
+  <span class="letter" style="--i:3; --color:#ffff00;">B</span>
+  <span class="letter" style="--i:4; --color:#00ff00;">A</span>
+  <span class="letter" style="--i:5; --color:#00b7ff;">T</span>
+  <span class="letter" style="--i:6; --color:#0040ff;">V</span>
+  <span class="letter" style="--i:7; --color:#ff00ff;">2</span>
+  <span class="letter" style="--i:8; --color:#ff0090;">4</span>
+</div>
+
+CSS
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.intro-container {
+  display: flex;
+  gap: 12px;
+  font-size: 120px;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.letter {
+  opacity: 0;
+  transform: translateX(200px) rotateY(90deg);
+  color: var(--color);
+  filter: drop-shadow(0 0 20px var(--color));
+  animation: enter 1.2s calc(var(--i) * 0.2s) forwards,
+             shake 0.3s infinite alternate,
+             neonBlink 1.5s infinite;
+}
+
+@keyframes enter {
+  0% {
+    opacity: 0;
+    transform: translateX(200px) rotateY(90deg) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-20px) rotateY(0deg) scale(1.05);
+  }
+  100% {
+    transform: translateX(0) rotateY(0deg) scale(1);
+  }
+}
+
+@keyframes shake {
+  0% { transform: translateY(0) rotateY(0deg); }
+  100% { transform: translateY(-6px) rotateY(3deg); }
+}
+
+@keyframes neonBlink {
+  0%, 80% { opacity: 1; filter: drop-shadow(0 0 20px var(--color)); }
+  81% { opacity: 0.3; }
+  82% { opacity: 1; }
+  90% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+JS (opcjonalne – do dodatkowego drżenia po starcie)
+setTimeout(() => {
+  document.querySelectorAll('.letter').forEach(el => {
+    el.style.animation += ", buzz 0.05s infinite alternate";
+  });
+}, 3000);
+
+@keyframes buzz {
+  from { transform: translateX(-1px); }
+  to { transform: translateX(1px); }
+}

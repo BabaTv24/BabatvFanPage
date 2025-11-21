@@ -1,0 +1,328 @@
+PROMPT DLA REPLIT — BABATV24 FanPage + App (viral, płatności, admin, PWA)
+
+Cel biznesowy: dziś uruchomić FanPage + mobilną PWA, zbierać leady i płatności; szybki wzrost bazy (wiral, social share, reflinki). Pierwszy target: 500 € przychodu (quick win).
+
+Inspiracja wyglądu: styl jak w https://stream-hub-tv-bigbabatv24.replit.app/?splash=1 — dopracowany „monitor TV” (neon/glass), płynne animacje.
+
+Stos technologiczny
+
+Next.js 14 (App Router) + React 18, TypeScript
+
+Tailwind CSS, shadcn/ui, Framer Motion, lucide-react
+
+Prisma + PostgreSQL (np. Supabase)
+
+Auth: magic link (email) + OAuth (Google, Apple, Facebook); Telegram Login Widget (opcjonalnie)
+
+PWA: manifest + service worker (offline shell)
+
+Video: HLS przez hls.js (fallback MP4), playlisty
+
+Płatności: Stripe (Checkout – one-time 0,99 €), PayPal (one-time), Crypto (Coinbase Commerce lub BTCPay)
+
+Analityka/piksele: Vercel Analytics, opcjonalnie Meta Pixel, Google Analytics, TikTok Pixel (ENV flagi)
+
+Bezpieczeństwo: rate-limit, helmet, csrf dla form, weryfikacja webhooków
+
+Kluczowe funkcje
+1) Lej pozyskania + wiral
+
+Landing/FanPage z hero intro (monitor TV, badge „LIVE”).
+
+Rejestracja 1-klik: email (magic link) lub social (Google/Apple/Facebook/Telegram).
+
+Po rejestracji: automatyczne ID użytkownika (format 7-cyfrowy, np. 0000001) i Reflink: https://app.babatv24.xyz/r/{refCode}.
+
+Reflinki naliczają punkty i zniżki (gamifikacja): 3 polecenia = kupon -0,99 € (free entry), 10 poleceń = 1 miesiąc PRO -50%.
+
+Share Bar: szybkie udostępnienia (FB, X, Telegram, WhatsApp, Discord), generowanie obrazka OG z indywidualnym ID.
+
+UTM tracking: zapisz utm_source, utm_campaign, utm_content w profilu leadu.
+
+2) Struktura strony (7 sekcji + header/footer)
+
+Header: logo BABATV24, na górze ticker reklam (25 slotów, przewijany marquee, edytowalny w panelu).
+
+Sekcja 1 — „Oglądaj nas na TV/Smartphone/Tablet/PC”
+Grid ikon urządzeń + krótkie USP (stabilny streaming, zero bullshitu, zawsze „na bieżąco”).
+
+Sekcja 2 — „Monitorek z zajawką”
+Ramka TV 16:9, neon glow, przyciski mute/fullscreen; overlay LIVE (mrugający). Odtwarzana 5-min pętla z klipów 45s (playlist z DB).
+
+Sekcja 3 — „Program TV online”
+Zakładki: Polska, DE, Live teraz.
+Dla teleman.pl, tvtoday.de, live-tv-jetzt.de — serwerowa agregacja metadanych (tytuł/audytoryjnie bez kopiowania treści płatnych) + link „Przejdź do programu”. Caching 15 min. Jeśli błąd, fallback na listę linków.
+
+Sekcja 4 — CTA płatności (0,99 €)
+Duży przycisk: „Rezerwuj dostęp za jedyne 0,99 €” (one-time, 30 dni dostępu + support + technik). Modal wyboru metody: Stripe / PayPal / Crypto.
+
+Sekcja 5 — Licznik użytkowników
+Rolling digits, real-time z DB (total_users). Wzrost po skutecznej płatności.
+
+Sekcja 6 — Upsell PRO
+Tekst: „Chcesz więcej? Dołącz za 12,99 €/miesiąc i sam wybieraj, co chcesz oglądać ;-)” + przycisk „Proszę o więcej informacji” → mini-landing PRO (benefity, porównanie planów).
+
+Sekcja 7 — Testimonials (9 opinii)
+3×3 karty z avatarami, imieniem, ★★★★★, krótkim cytatem. Autoplay carousel na mobile.
+
+Footer: linki prawne (Regulamin, Polityka prywatności, Cookies, Kontakt), social bar, licencje.
+
+3) Płatności i dostęp
+
+Plan Entry: 0,99 € jednorazowo ⇒ 30 dni dostępu do sekcji /watch.
+
+Plan PRO (upsell): 12,99 €/mies. (subskrypcja Stripe). UWAGA: dziś priorytet to Entry.
+
+Po webhooku paid: utwórz/zaktualizuj Entitlement.expiresAt = now()+30d, zapisz Transaction.
+
+Middleware: jeśli brak ważnego dostępu → paywall (CTA 0,99 €).
+
+„Kupony reflinkowe”: obsłuż discount=100% dla 3+ poleceń (Entry gratis).
+
+4) Panel Administratora (role-based)
+
+Logowanie admin (role=ADMIN), edytor (EDITOR).
+
+Dashboard: dzienny przychód, liczba transakcji, CR (visit→pay), ref top-10, wykresy (Recharts).
+
+Użytkownicy: lista, filtry, ręczne grant/revoke entitlements, podgląd reflinków, UTM.
+
+Reklamy (25 slotów): CRUD, drag&drop kolejność, logo, tekst, URL, tracking klików.
+
+Playlisty klipów: CRUD, kolejność (drag&drop), status aktywny, typ źródła (HLS/MP4).
+
+Testimonials: CRUD, moderacja on/off.
+
+Ustawienia płatności: klucze Stripe/PayPal/Crypto, ceny, PRO on/off.
+
+CMS FanPage: edycja tekstów CTA, headline, grafiki hero, kolory (pre-sety motywów).
+
+Logi audytu: kto/co/kiedy.
+
+5) UX/UI (premium)
+
+Motyw „czarne złoto + neon” (glassmorphism, soft shadow rounded-2xl).
+
+Animacje: wejście sekcji (fade/slide), parallax hero, marquee bez zacięć, licznik „przewijane cyfry”.
+
+A11y: kontrast, focus states, klawiatura; napisy VTT dla wideo.
+
+i18n: PL (default), EN (włącznik w panelu).
+
+6) Analityka i kampanie
+
+Eventy: view_hero, click_pay_099, start_checkout, pay_success, share_click, ref_conversion.
+
+Integracje pikseli (ENV-flagi): META_PIXEL_ID, GA_ID, TIKTOK_PIXEL_ID.
+
+UTM przepływ: zapisuj do User.firstTouchUtm + User.lastTouchUtm.
+
+7) Bezpieczeństwo
+
+Weryfikacja webhooków (Stripe/PayPal/Coinbase).
+
+Rate limit (ip + user) dla /api/*.
+
+Signed URLs dla segmentów HLS (jeśli hostujemy), krótki TTL.
+
+hCaptcha opcjonalnie na formach (ENV toggle).
+
+RODO: zgody marketingowe, polityka prywatności, eksport/usunięcie danych (endpointy admina).
+
+Modele danych (Prisma – szkic)
+enum Role { USER EDITOR ADMIN }
+
+model User {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  email         String   @unique
+  role          Role     @default(USER)
+  numericId     Int      @unique // do 7-cyfrowego formatowania
+  refCode       String   @unique // np. base36 z numericId
+  referredBy    String?  // refCode polecającego
+  firstTouchUtm Json?
+  lastTouchUtm  Json?
+  entitlement   Entitlement?
+  transactions  Transaction[]
+  referrals     Referral[]
+  marketingOptIn Boolean  @default(false)
+}
+
+model Referral {
+  id        String   @id @default(cuid())
+  referrer  String   // refCode polecającego
+  refereeId String   // User.id pozyskanego
+  createdAt DateTime @default(now())
+}
+
+model Entitlement {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int      // centy
+  currency    String   // 'EUR'
+  provider    String   // 'stripe' | 'paypal' | 'crypto'
+  providerId  String   @unique
+  status      String   // 'paid' | 'failed' | 'refunded'
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model AdSlot {
+  id        String   @id @default(cuid())
+  position  Int      @unique // 1..25
+  active    Boolean  @default(true)
+  title     String
+  text      String
+  url       String
+  logoUrl   String
+  clicks    Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  avatarUrl String
+  rating    Int
+  quote     String   // ≤ 140 znaków
+  active    Boolean  @default(true)
+}
+
+model Clip {
+  id        String   @id @default(cuid())
+  title     String
+  url       String     // HLS/MP4
+  lengthSec Int        // 45
+  order     Int
+  active    Boolean    @default(true)
+}
+
+model GlobalCounter {
+  id     String @id @default("global")
+  users  Int    @default(0)
+}
+
+Routing / Widoki
+
+/ — FanPage (hero monitor, sekcje 1–7, share bar, ticker reklam)
+
+/auth/* — logowanie (email magic link + OAuth + Telegram)
+
+/dashboard — strona użytkownika (ID, reflink, statystyki poleceń, kupony)
+
+/watch — odtwarzacz (tylko z ważnym dostępem)
+
+/pay — wybór metody; /success i /error
+
+/pro — upsell do planu PRO
+
+/admin/* — panel admina
+
+API: /api/payments/* (checkout, webhook), /api/playlist, /api/program, /api/counter, /api/ref/*, /api/share, /api/export
+
+Logika płatności (Entry 0,99 €)
+
+Start Checkout (Stripe/PayPal/Crypto) z price_099.
+
+Webhook paid:
+
+znajdź/utwórz usera (po emailu z providera),
+
+zapisz Transaction{status:'paid'},
+
+Entitlement.expiresAt = now() + 30d,
+
+GlobalCounter.users++.
+
+Middleware watch: jeżeli expiresAt > now() → allow, inaczej → paywall.
+
+Kupony reflinkowe: endpoint liczy aktywne Referral dla refCode. Jeśli ≥3 i brak aktywnego Entry → generuj coupon_free_entry (Stripe/PayPal), lub tryb własny „0 EUR”.
+
+Program TV (agregacja metadanych)
+
+CRON/ISR co 15 min pobiera tytuły i godziny z teleman.pl, tvtoday.de, live-tv-jetzt.de (tylko metadane publiczne, bez kopiowania treści płatnych).
+
+Wyświetlaj listę „Teraz/Za chwilę” + link do oryginału „Zobacz więcej”.
+
+Jeśli błąd: fallback – statyczne linki + komunikat.
+
+UX teksty (PL)
+
+Hero CTA: „Rezerwuj dostęp za jedyne 0,99 € – 30 dni oglądania!”
+
+Sekcja 6: „Chcesz więcej? Dołącz za 12,99 €/miesiąc i sam wybieraj, co chcesz oglądać ;-)” + „Proszę o więcej informacji”
+
+Paywall: „Dostęp tylko 0,99 € (30 dni). Płać Stripe, PayPal lub Krypto.”
+
+Licznik: „Dołączyło już: {X} użytkowników”
+
+Pliki i konfiguracja
+
+ENV.example:
+
+DATABASE_URL=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+STRIPE_SECRET_KEY=
+STRIPE_PRICE_099=
+STRIPE_PRICE_PRO=
+STRIPE_WEBHOOK_SECRET=
+PAYPAL_CLIENT_ID=
+PAYPAL_SECRET=
+COINBASE_API_KEY=
+COINBASE_WEBHOOK_SECRET=
+META_PIXEL_ID=
+GA_MEASUREMENT_ID=
+TIKTOK_PIXEL_ID=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_BOT_USERNAME=
+FEATURE_PRO=false
+FEATURE_HCAPTCHA=false
+
+
+README: instrukcje setup (DB migrate, klucze płatności, piksele, uruchomienie CRON/ISR).
+
+Seed: 25 slotów reklam (placeholder), 9 opinii, 8 klipów testowych (45s), 100 test users.
+
+Definicja ukończenia (DoD)
+
+Lighthouse mobile/desktop ≥ 90.
+
+Rejestracja (email + przynajmniej 1 OAuth) działa, przydziela numericId i refCode.
+
+Stripe/PayPal (test mode) przyjmują 0,99 €, webhooky tworzą dostęp na 30 dni.
+
+/watch zabezpieczone; licznik użytkowników zwiększa się po płatności.
+
+Ticker reklam + CRUD w adminie; Testimonials + CRUD.
+
+Agregacja metadanych Programu TV z cachingiem/fallbackiem.
+
+Share bar generuje reflink (OG image z ID).
+
+PWA manifest + ikony; responsywność 360px+.
+
+Priorytet „500 € dziś” — tryb kampanii
+
+Włącz landing A/B (dwóch wariantów CTA: „Rezerwuj dostęp 0,99 €” vs „Oglądaj 30 dni za 0,99 €”).
+
+Dodaj licznik czasu do końca promocji dnia (np. reset o 23:59 CET; ENV PROMO_DEADLINE).
+
+Zaimplementuj komunikat społeczny: „X osób wykupiło dostęp w ciągu ostatnich 60 minut”.
+
+W panelu admina: widok „Kampanie” (źródła UTM, CR, przychód) + szybki eksport CSV.
+
+Zbuduj kompletny projekt wg specyfikacji. Utwórz strony, API routes, modele Prisma, panel admina, integracje płatności, PWA i README z krokami wdrożenia (dev/prod), w tym konfiguracją Stripe/PayPal/Crypto i pikseli. Zapewnij seed danych i tryb DEMO. Design premium (czarne złoto, neon), płynne animacje, wysoka wydajność.
